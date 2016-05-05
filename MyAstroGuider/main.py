@@ -16,7 +16,11 @@ class ClientThread(threading.Thread):
 		self.port = port
 		self.clientsocket = clientsocket
 		self.autoguidingthread = autoguidageThread
+		self.server_status = True
 		print("[+] Nouveau thread pour %s %s" % (self.ip, self.port, ))
+		
+	def check_if_server_must_be_closed(self):
+		return self.server_status
 
 	def run(self): 
 		print("Connection de %s %s" % (self.ip, self.port, ))
@@ -61,16 +65,16 @@ class ClientThread(threading.Thread):
 		if r == "START_CAMERA":
 			self.autoguidingthread.start_camera(self.clientsocket)
 			
-			
 		if r == "STOP":
 			self.autoguidingthread.thread_stop(self.clientsocket)
+			self.server_status = False
 
 
 # Chargement du fichier de propriétés
 config = ConfigParser.RawConfigParser()
 config.read('parameters.cfg')
 
-
+keep_server_started = True
 
 
 tcpsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -80,10 +84,16 @@ tcpsock.bind(("", config.getint('TCP_SERVER', 'port')))
 guidingthread = AutoguidingThread(config, useGPIO = config.getboolean('RASPBERRY', 'use_gpio'), src = config.getint('CAMERA', 'video_source'), usePiCamera = config.getboolean('CAMERA', 'use_pi_camera'), useDemoSource = config.getboolean('CAMERA', 'demo_mode'), resolution = (config.getint('CAMERA', 'resolution_mode_x'), config.getint('CAMERA', 'resolution_mode_y')), boxSize = config.getint('GUIDING', 'box_size'), framerate = config.getint('CAMERA', 'framerate'), nb_stack_frames = config.get('CAMERA', 'nb_stack_frames'))
 
 guidingthread.start()
-while True:
+while keep_server_started:
 	tcpsock.listen(10)
 	print( "En écoute...")
 	(clientsocket, (ip, port)) = tcpsock.accept()
 	newthread = ClientThread(ip, port, clientsocket, guidingthread)
 	
 	newthread.start()
+	newthread.join()
+	if newthread.check_if_server_must_be_closed() == False:
+		keep_server_started = False
+	
+
+tcpsock.close()
