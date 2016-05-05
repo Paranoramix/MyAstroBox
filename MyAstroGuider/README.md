@@ -61,6 +61,8 @@ MyAstroGuider dépend de plusieurs composants logiciels tierces :
     
     $ ln -s /usr/local/lib/python3.4/site-packages/cv2.so cv2.so
     
+    $ pip install imutils
+    
 # Licences
 
 MyAstroGuider est un projet OpenSource sous licence MIT. Chaque composant tierce est sous sa propre licence d'utilisation.
