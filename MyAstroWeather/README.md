@@ -15,7 +15,6 @@ MyAstroWeather dépend de plusieurs composants logiciels tierces :
     le driver BCM2835 pour permettre la communication sur le port I²C.
 
 # Installation
-
     $ sudo apt-get update
     $ sudo apt-get upgrade
     $ sudo rpi-update
@@ -44,8 +43,14 @@ MyAstroWeather dépend de plusieurs composants logiciels tierces :
     $ sudo make install
     
     $ sudo raspi-config
-      under Advanced Options - enable Device Tree
-
+         **under Advanced Options - enable Device Tree
+    $ sudo reboot
+    
+    $ cd ~
+    $ git clone git@github.com:Paranoramix/MyAstroBox.git
+    $ cd MyAstroBox/MyAstroWeather
+    $ gcc tcp_server.c -o ../MyAstroWeather -lm -lbcm2835 -lpthread -lwiringPi
+    
 # Licences
 
 MyAstroWeather est un projet OpenSource sous licence MIT. Chaque composant tierce est sous sa propre licence d'utilisation.
